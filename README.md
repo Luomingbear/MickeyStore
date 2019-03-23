@@ -13,22 +13,33 @@ implementation 'com.google.code.gson:gson:2.8.5'
 MickeyStore.getInstance().init(Context context);
 ```
 
-- 设置数据
+- 设置数据异步
 ```java
 MickeyStore.getInstance().setData(String key, Object value, OnMickeyStoreListener listener);
 ```
 
-- 获取数据
+- 获取数据异步
 ```java
 MickeyStore.getInstance().getData(String key, OnMickeyStoreListener listener);
 ```
 
-- 移除数据
+- 移除数据异步
 ```java
 MickeyStore.getInstance().removeData(String key, OnMickeyStoreListener listener)
 ```
 
-- 清空数据
+- 设置数据同步
+```java
+MickeyStore.getInstance().setData(String key, Object obj)
+```
+
+- 获取数据同步
+```java
+MickeyStore.getInstance().getData(String key)
+```
+
+
+- 清空数据异步
 ```java
 MickeyStore.getInstance().clear(String key, OnMickeyStoreListener listener)
 ```

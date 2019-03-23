@@ -1,17 +1,20 @@
 package cn.bearever.mickeystore.thread;
 
+import android.net.Uri;
+
+import cn.bearever.mickeystore.db.MKDatabase;
+import cn.bearever.mickeystore.db.MKDbManager;
+import cn.bearever.mickeystore.info.MickeyCallbackInfo;
+import cn.bearever.mickeystore.info.OnMickeyStoreListener;
+import cn.bearever.util.UriSerializer;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import cn.bearever.mickeystore.db.MKDatabase;
-import cn.bearever.mickeystore.db.MKDbManager;
-import cn.bearever.mickeystore.info.MickeyCallbackInfo;
-import cn.bearever.mickeystore.info.OnMickeyStoreListener;
 
 /**
  * 使用线程池来处理数据读写请求
@@ -24,7 +27,9 @@ public class MKEventThreadManager {
     private ThreadPoolExecutor mThreadPoolExecutor; //执行请求的线程池，单线程
 
     public MKEventThreadManager() {
-        mGson = new Gson();
+        mGson = new GsonBuilder()
+                .registerTypeAdapter(Uri.class, new UriSerializer())
+                .create();
         mThreadPoolExecutor = new ThreadPoolExecutor(1, 1000,
                 1, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(),
                 Executors.defaultThreadFactory(), new ThreadPoolExecutor.DiscardPolicy());
@@ -33,6 +38,27 @@ public class MKEventThreadManager {
     public void put(MickeyCallbackInfo info) {
         MickeyRunnable runnable = new MickeyRunnable(info);
         mThreadPoolExecutor.execute(runnable);
+    }
+
+    public boolean setData(String key, Object obj) {
+        String v = mGson.toJson(obj);
+        return MKDbManager.getInstance().setData(key, v);
+    }
+
+    public String getData(String key) {
+        String json = MKDbManager.getInstance().getData(key);
+        if (MKDatabase.EMPTY.equals(json)) {
+            return null;
+        }
+        return json;
+    }
+
+    public <T> T getData(String key, Class<T> classOfT) {
+        String json = getData(key);
+        if (json == null) {
+            return null;
+        }
+        return mGson.fromJson(getData(key), classOfT);
     }
 
     public void shutdown() {
@@ -122,4 +148,5 @@ public class MKEventThreadManager {
             }
         }
     }
+
 }

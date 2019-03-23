@@ -10,6 +10,7 @@ import cn.bearever.mickeystore.thread.MKEventThreadManager;
 
 /**
  * 一个简单的key-value数据存取库
+ * 使用方式查看 https://github.com/Luomingbear/MickeyStore
  * 作者：luoming on 2018/10/17.
  * 邮箱：luomingbear@163.com
  * 版本：v1.0
@@ -30,7 +31,7 @@ public class MickeyStore {
         return instance;
     }
 
-    protected MickeyStore() {
+    private MickeyStore() {
     }
 
     /**
@@ -53,7 +54,23 @@ public class MickeyStore {
     }
 
     /**
+     * 同步设置数据
+     *
+     * @param key
+     * @param obj
+     * @return 是否成功
+     */
+    public boolean setData(String key, Object obj) {
+        if (mMickeyEventThreadManager == null) {
+            throw new NullPointerException("请先执行init()初始化");
+        }
+
+        return mMickeyEventThreadManager.setData(key, obj);
+    }
+
+    /**
      * 保存数据
+     * 异步
      *
      * @param key
      * @param value
@@ -72,6 +89,7 @@ public class MickeyStore {
 
     /**
      * 获取数据
+     * 异步
      *
      * @param key
      * @return
@@ -82,6 +100,60 @@ public class MickeyStore {
 
     /**
      * 获取数据
+     * 同步
+     *
+     * @param key
+     * @return
+     */
+    public String getData(String key) {
+        if (mMickeyEventThreadManager == null) {
+            throw new NullPointerException("请先执行init()初始化");
+        }
+
+        return mMickeyEventThreadManager.getData(key);
+    }
+
+    /**
+     * 获取数据
+     * 同步
+     *
+     * @param key
+     * @return
+     */
+//    public <T> List<T> getArrayData(String key,Class<T> class4T) {
+//        if (mMickeyEventThreadManager == null) {
+//            throw new NullPointerException("请先执行init()初始化");
+//        }
+//
+//        String json = getData(key);
+//        if (TextUtils.isEmpty(json)) {
+//            return Collections.emptyList();
+//        }
+//        Type type = new TypeToken<List<T>>() {
+//        }.getType();
+//        return new Gson().fromJson(json, type);
+//    }
+
+    /**
+     * 获取数据
+     * 同步
+     *
+     * @param key
+     * @return
+     */
+    public <T> T getData(String key, Class<T> classOfT) {
+        if (mMickeyEventThreadManager == null) {
+            throw new NullPointerException("请先执行init()初始化");
+        }
+
+
+        return mMickeyEventThreadManager.getData(key, classOfT);
+    }
+
+
+    /**
+     * 获取数据
+     * 异步
      *
      * @param key
      * @return
@@ -100,6 +172,7 @@ public class MickeyStore {
 
     /**
      * 移除一个数据
+     * 异步
      *
      * @param key
      */
